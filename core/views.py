@@ -77,7 +77,17 @@ def map_view(request):
     return render(request, 'core/map.html')
 
 def antenna_data(request):
-    antennas = Antenna.objects.all().order_by('latitude', 'longitude')
+    tech = request.GET.get('tech')
+    entity = request.GET.get('entity')
+    
+    antennas = Antenna.objects.all()
+    
+    if tech:
+        antennas = antennas.filter(technology=tech)
+    if entity:
+        antennas = antennas.filter(entity_name=entity)
+        
+    antennas = antennas.order_by('latitude', 'longitude')
     sites = {}
     
     for antenna in antennas:
@@ -97,3 +107,12 @@ def antenna_data(request):
         })
     
     return JsonResponse(list(sites.values()), safe=False)
+
+def filter_options(request):
+    technologies = Antenna.objects.values_list('technology', flat=True).distinct().order_by('technology')
+    entities = Antenna.objects.values_list('entity_name', flat=True).distinct().order_by('entity_name')
+    
+    return JsonResponse({
+        'technologies': list(technologies),
+        'entities': list(entities)
+    })

@@ -6,4 +6,5 @@ urlpatterns = [
     path('upload/', views.upload_csv, name='upload_csv'),
     path('map/', views.map_view, name='map_view'),
     path('api/antennas/', views.antenna_data, name='antenna_data'),
+    path('api/filter-options/', views.filter_options, name='filter_options'),
 ]

@@ -1,50 +1,102 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div id="map"></div>
+<div id="map-container" style="position: relative; height: 100%; width: 100%;">
+    <div id="map" style="height: 100%; width: 100%; z-index: 1;"></div>
+    
+    <!-- Filter Control Panel -->
+    <div class="card p-3 shadow-sm" style="position: absolute; top: 10px; right: 10px; z-index: 1000; width: 250px; background-color: rgba(255, 255, 255, 0.9);">
+        <h6 class="mb-3">Filters</h6>
+        <div class="mb-2">
+            <label for="techFilter" class="form-label small">Technology</label>
+            <select id="techFilter" class="form-select form-select-sm">
+                <option value="">All</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="entityFilter" class="form-label small">Operator</label>
+            <select id="entityFilter" class="form-select form-select-sm">
+                <option value="">All</option>
+            </select>
+        </div>
+    </div>
+</div>
 
 <script>
     var map = L.map('map').setView([-18.598, -46.515], 13); // Centered on Patos de Minas default
+    var markers = L.markerClusterGroup();
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    fetch("{% url 'antenna_data' %}")
+    // Fetch Filter Options
+    fetch("{% url 'filter_options' %}")
         .then(response => response.json())
         .then(data => {
-            if (data.length > 0) {
-                // Determine bounds to center map
-                var bounds = L.latLngBounds();
-                var markers = L.markerClusterGroup();
+            const techSelect = document.getElementById('techFilter');
+            const entitySelect = document.getElementById('entityFilter');
 
-                data.forEach(site => {
-                    var marker = L.marker([site.latitude, site.longitude]);
-                    
-                    var antennasList = site.antennas.map(a => 
-                        `<li><b>${a.entity_name}</b>: ${a.technology} (${a.frequency} MHz)</li>`
-                    ).join('');
+            data.technologies.forEach(tech => {
+                techSelect.innerHTML += `<option value="${tech}">${tech}</option>`;
+            });
 
-                    var popupContent = `
-                        <div style="max-height: 200px; overflow-y: auto; overflow-x: hidden; min-width: 200px;">
-                            <strong>${site.city}</strong><br>
-                            <span class="text-muted">${site.antennas.length} Antenna(s) at this site</span>
-                            <hr class="my-1">
-                            <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
-                                ${antennasList}
-                            </ul>
-                        </div>
-                    `;
-                    
-                    marker.bindPopup(popupContent);
-                    markers.addLayer(marker);
-                    bounds.extend([site.latitude, site.longitude]);
-                });
+            data.entities.forEach(entity => {
+                entitySelect.innerHTML += `<option value="${entity}">${entity}</option>`;
+            });
+        });
 
-                map.addLayer(markers);
-                map.fitBounds(bounds);
-            }
-        })
-        .catch(error => console.error('Error fetching antenna data:', error));
+    function loadMapData() {
+        const tech = document.getElementById('techFilter').value;
+        const entity = document.getElementById('entityFilter').value;
+        
+        let url = "{% url 'antenna_data' %}?";
+        if (tech) url += `tech=${encodeURIComponent(tech)}&`;
+        if (entity) url += `entity=${encodeURIComponent(entity)}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                markers.clearLayers();
+                
+                if (data.length > 0) {
+                    var bounds = L.latLngBounds();
+
+                    data.forEach(site => {
+                        var marker = L.marker([site.latitude, site.longitude]);
+                        
+                        var antennasList = site.antennas.map(a => 
+                            `<li><b>${a.entity_name}</b>: ${a.technology} (${a.frequency} MHz)</li>`
+                        ).join('');
+
+                        var popupContent = `
+                            <div style="max-height: 200px; overflow-y: auto; overflow-x: hidden; min-width: 200px;">
+                                <strong>${site.city}</strong><br>
+                                <span class="text-muted">${site.antennas.length} Antenna(s) at this site</span>
+                                <hr class="my-1">
+                                <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                                    ${antennasList}
+                                </ul>
+                            </div>
+                        `;
+                        
+                        marker.bindPopup(popupContent);
+                        markers.addLayer(marker);
+                        bounds.extend([site.latitude, site.longitude]);
+                    });
+
+                    map.addLayer(markers);
+                    map.fitBounds(bounds);
+                }
+            })
+            .catch(error => console.error('Error fetching antenna data:', error));
+    }
+
+    // Initial Load
+    loadMapData();
+
+    // Event Listeners
+    document.getElementById('techFilter').addEventListener('change', loadMapData);
+    document.getElementById('entityFilter').addEventListener('change', loadMapData);
 </script>
 {% endblock %}
