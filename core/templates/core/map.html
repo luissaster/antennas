@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div id="map"></div>
+
+<script>
+    var map = L.map('map').setView([-18.598, -46.515], 13); // Centered on Patos de Minas default
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    fetch("{% url 'antenna_data' %}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                // Determine bounds to center map
+                var bounds = L.latLngBounds();
+                var markers = L.markerClusterGroup();
+
+                data.forEach(site => {
+                    var marker = L.marker([site.latitude, site.longitude]);
+                    
+                    var antennasList = site.antennas.map(a => 
+                        `<li><b>${a.entity_name}</b>: ${a.technology} (${a.frequency} MHz)</li>`
+                    ).join('');
+
+                    var popupContent = `
+                        <div style="max-height: 200px; overflow-y: auto; overflow-x: hidden; min-width: 200px;">
+                            <strong>${site.city}</strong><br>
+                            <span class="text-muted">${site.antennas.length} Antenna(s) at this site</span>
+                            <hr class="my-1">
+                            <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                                ${antennasList}
+                            </ul>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                    markers.addLayer(marker);
+                    bounds.extend([site.latitude, site.longitude]);
+                });
+
+                map.addLayer(markers);
+                map.fitBounds(bounds);
+            }
+        })
+        .catch(error => console.error('Error fetching antenna data:', error));
+</script>
+{% endblock %}
