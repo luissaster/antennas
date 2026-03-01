@@ -1,60 +1,61 @@
-# Antennas
+# Antennas 📡
 
-### Interactive Geovisualization for ANATEL's MOSAICO Data
+### Geovisualização Interativa para Dados do Sistema MOSAICO da ANATEL
 
-A Django application to visualize antenna data from [ANATEL's MOSAICO system](https://sistemas.anatel.gov.br/se/public/view/b/licenciamento.php) on an interactive map.
+Uma aplicação construída em Django para visualizar os dados de antenas do [sistema MOSAICO da ANATEL](https://sistemas.anatel.gov.br/se/public/view/b/licenciamento.php) em um mapa interativo.
 
-## Features
+## 🚀 Funcionalidades
 
--   **CSV Upload**: Easily upload antenna data exports (CSV) from the MOSAICO system.
--   **Data Processing**: Automatic data cleaning and validation using Pandas.
--   **Interactive Map**: Visualize antenna locations markers.
--   **Filtering**: Filter displayed antennas by **Technology** and **Entity**.
--   **Clustering**: Groups antennas at the same coordinates to improve map readability.
+- **Upload de CSV**: Faça o upload de forma fácil das exportações de dados de antenas (em formato CSV) do sistema MOSAICO.
+- **Processamento de Dados**: Limpeza e validação automáticas dos dados utilizando a biblioteca Pandas.
+- **Mapa Interativo**: Visualize a localização exata das antenas através de marcadores no mapa.
+- **Filtros Personalizados**: Filtre as antenas exibidas por **Tecnologia** e **Entidade**.
+- **Agrupamento (Clustering)**: Agrupa antenas com as mesmas coordenadas, melhorando a clareza e a legibilidade do mapa.
 
-## Installation
+## ⚙️ Instalação e Configuração
 
-### Prerequisites
+### Pré-requisitos
 
--   Python 3.8+
--   Django
--   Pandas
+Certifique-se de ter os seguintes requisitos instalados:
+- Python 3.8+
+- Django
+- Pandas
 
-### Steps
+### Passo a Passo
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/luissaster/antennas.git
-    cd antennas
-    ```
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/luissaster/antennas.git
+   cd antennas
+   ```
 
-2.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+2. **Instale as dependências:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3.  **Apply migrations:**
-    ```bash
-    python manage.py migrate
-    ```
+3. **Aplique as migrações do banco de dados:**
+   ```bash
+   python manage.py migrate
+   ```
 
-4.  **Run the development server:**
-    ```bash
-    python manage.py runserver
-    ```
+4. **Inicie o servidor de desenvolvimento:**
+   ```bash
+   python manage.py runserver
+   ```
 
-5.  Access the application at `http://127.0.0.1:8000/`.
+5. Acesse a aplicação em seu navegador através do endereço `http://127.0.0.1:8000/`.
 
-## Usage
+## 📖 Como Usar
 
-1.  Navigate to the **Upload** page.
-2.  Select a CSV file containing the antenna data.
-3.  Once uploaded, you will be redirected to the **Map** view.
-4.  Use the filters to refine the visualization by technology or entity.
+1. Acesse a página de **Upload** na aplicação.
+2. Selecione um arquivo CSV contendo os dados das antenas exportados do painel MOSAICO.
+3. Após o envio do arquivo, você será redirecionado automaticamente para a visualização do **Mapa**.
+4. Utilize os filtros disponíveis na interface para refinar a visualização por tecnologia ou por entidade conforme sua necessidade.
 
-## Docker Support
+## 🐳 Suporte ao Docker
 
-You can also run the project using Docker:
+Se preferir, você pode executar o projeto de forma rápida utilizando contêineres Docker:
 
 ```bash
 docker-compose up --build
